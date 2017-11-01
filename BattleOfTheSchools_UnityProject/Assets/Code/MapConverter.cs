@@ -82,7 +82,7 @@ public class MapConverter : MonoBehaviour {
 
     private int ConvertColorToDir(Color c)
     {
-        float per = c.r * 100;
-        return Mathf.RoundToInt(0.09f * per);
+        float per = c.b * 100 - 50;
+        return Mathf.RoundToInt(0.08f * per);
     }
 }

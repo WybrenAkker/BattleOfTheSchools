@@ -16,7 +16,7 @@ public struct NodeValue
 
 public class Node
 {
-    //range 0 - 8
-    public int dir = -1;
+    //range 0 - 9
+    public int dir = -1; //clock, -1 is no direction, 8 is same as 0
     public InputNode values;
 }
