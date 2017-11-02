@@ -50,6 +50,7 @@ public class Graph : MonoBehaviour {
     public LineHolders lineHolders = new LineHolders();
 
     public GameObject pointImage;
+    public GameObject outsideHolder;
 
     private LineRenderer line1;
     private LineRenderer line2;
@@ -212,7 +213,7 @@ public class Graph : MonoBehaviour {
 
                     GameObject newEmptyLineObject = new GameObject();
                     GameObject newLineObject = Instantiate(newEmptyLineObject, transform.position, Quaternion.identity) as GameObject;
-                    newLineObject.transform.parent = transform;
+                    newLineObject.transform.parent = transform; //Try adding an outside object and bind the line holders to it
                     LineRenderer testLine = newLineObject.AddComponent<LineRenderer>();
                     Material testMat = new Material(Shader.Find("Standard"));
                     switch (i)
