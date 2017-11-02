@@ -88,6 +88,7 @@ public class Graph : MonoBehaviour {
         lineHolders.lineHolder4.transform.parent = transform;
         lineHolders.lineHolder5.transform.parent = transform;
 
+        /*
         line1 = lineHolders.lineHolder1.AddComponent<LineRenderer>();
         line2 = lineHolders.lineHolder2.AddComponent<LineRenderer>();
         line3 = lineHolders.lineHolder3.AddComponent<LineRenderer>();
@@ -107,6 +108,7 @@ public class Graph : MonoBehaviour {
         PrepareLines(line4, 5, Color.white, whiteLine);
         PrepareLines(line5, 5, Color.magenta, magnetaLine);
 
+        */
         CalculateLength();
     }
 
@@ -198,10 +200,51 @@ public class Graph : MonoBehaviour {
                             line = line5;
                             break;
                     }
+                    
+                    /* 
+                     * 
+                     * //THIS SORT OF WORKS BUT MAKES LINES THIN
                     line.SetPosition(lineId, pointList[i, pointId].position);
                     lineId++;
                     line.SetPosition(lineId, pointList[i, i2].position);
                     lineId++;
+                    */
+
+                    GameObject newEmptyLineObject = new GameObject();
+                    GameObject newLineObject = Instantiate(newEmptyLineObject, transform.position, Quaternion.identity) as GameObject;
+                    newLineObject.transform.parent = transform;
+                    LineRenderer testLine = newLineObject.AddComponent<LineRenderer>();
+                    Material testMat = new Material(Shader.Find("Standard"));
+                    switch (i)
+                    {
+                        case 0:
+                            testMat.color = Color.red;
+                            newLineObject.transform.parent = lineHolders.lineHolder1.transform;
+                            break;
+                        case 1:
+                            testMat.color = Color.blue;
+                            newLineObject.transform.parent = lineHolders.lineHolder2.transform;
+                            break;
+                        case 2:
+                            testMat.color = Color.green;
+                            newLineObject.transform.parent = lineHolders.lineHolder3.transform;
+                            break;
+                        case 3:
+                            testMat.color = Color.white;
+                            newLineObject.transform.parent = lineHolders.lineHolder4.transform;
+                            break;
+                        case 4:
+                            testMat.color = Color.magenta;
+                            newLineObject.transform.parent = lineHolders.lineHolder5.transform;
+                            break;
+                    }
+                    testLine.material = testMat;
+                    testLine.startWidth = 5;
+                    testLine.endWidth = 5;
+                    testLine.SetPosition(0, pointList[i, pointId].position);
+                    lineId++;
+                    testLine.SetPosition(1, pointList[i, i2].position);
+
                 }
             }
         }
