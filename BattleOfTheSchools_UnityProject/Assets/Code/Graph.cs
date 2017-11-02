@@ -57,6 +57,7 @@ public class Graph : MonoBehaviour {
     public LineInfo lineInfo = new LineInfo();
 
     public GameObject pointImage;
+    public Slider timeLineRepresentation;
     public GameObject outsideHolder;
 
     private LineRenderer line1;
@@ -336,6 +337,6 @@ public class Graph : MonoBehaviour {
     }
     public void TimeLine(float f)
     {
-
+        timeLineRepresentation.value = f;
     }
 }

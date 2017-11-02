@@ -14,9 +14,9 @@ public class Timeline : MonoBehaviour
 
     public void Start()
     {
-        gameManager = GameObject.Find("GameManager");
-        mc = gameManager.GetComponent<MapConverter>();
-        imaginarySecondsBetweenHours = mc.reqExecutedTurns;
+        //gameManager = GameObject.Find("GameManager");
+        //mc = gameManager.GetComponent<MapConverter>();
+        //imaginarySecondsBetweenHours = mc.reqExecutedTurns;
     }
 
     public void OnValueChanged()
@@ -41,6 +41,6 @@ public class Timeline : MonoBehaviour
         int simTime = Mathf.RoundToInt(imaginarySecondsBetweenHours * timeDif);
 
         //mc.UpdateSim(timeSnippet, simTime);
-        //graph.GetComponent<Graph>().TimeLine(slider.value);
+        graph.GetComponent<Graph>().TimeLine(slider.value);
     }
 }
