@@ -143,7 +143,7 @@ public class MapConverter : MonoBehaviour {
                     loop = 0;
                 }
                 //top
-                if (corruptNode.dir == 0 || corruptNode.dir == 1 || corruptNode.dir == 7)
+                if (corruptNode.dir == 0)
                     if (IsInBounds(corruptNode.x, corruptNode.y + 1, width, height))
                     {
                         other = grid[corruptNode.x, corruptNode.y + 1];
@@ -160,8 +160,44 @@ public class MapConverter : MonoBehaviour {
                                 }
                             }
                     }
+                //top right
+                if (corruptNode.dir == 1)
+                    if (IsInBounds(corruptNode.x + 1, corruptNode.y + 1, width, height))
+                    {
+                        other = grid[corruptNode.x + 1, corruptNode.y + 1];
+                        if (other.dir > -1)
+                            if (!corrupted.Contains(other))
+                            {
+                                spread = GetDirDifficultyPer(1, corruptNode.dir);
+                                for (int nV = 0; nV < corruptNode.values.Count; nV++)
+                                {
+                                    spreadCalc = corruptNode.values[nV].spreadAmount * spread;
+                                    corruptNode.values[nV].current -= spreadCalc;
+                                    other.values[nV].current += spreadCalc;
+                                    //print(1);
+                                }
+                            }
+                    }
+                //top left
+                if (corruptNode.dir == 7)
+                    if (IsInBounds(corruptNode.x - 1, corruptNode.y + 1, width, height))
+                    {
+                        other = grid[corruptNode.x - 1, corruptNode.y + 1];
+                        if (other.dir > -1)
+                            if (!corrupted.Contains(other))
+                            {
+                                spread = GetDirDifficultyPer(7, corruptNode.dir);
+                                for (int nV = 0; nV < corruptNode.values.Count; nV++)
+                                {
+                                    spreadCalc = corruptNode.values[nV].spreadAmount * spread;
+                                    corruptNode.values[nV].current -= spreadCalc;
+                                    other.values[nV].current += spreadCalc;
+                                    //print(1);
+                                }
+                            }
+                    }
                 //bottom
-                if (corruptNode.dir == 4 || corruptNode.dir == 5 || corruptNode.dir == 3)
+                if (corruptNode.dir == 4)
                     if (IsInBounds(corruptNode.x, corruptNode.y - 1, width, height))
                     {
                         other = grid[corruptNode.x, corruptNode.y - 1];
@@ -175,6 +211,42 @@ public class MapConverter : MonoBehaviour {
                                     corruptNode.values[nV].current -= spreadCalc;
                                     other.values[nV].current += spreadCalc;
                                     //print(2);
+                                }
+                            }
+                    }
+                //bottom right
+                if (corruptNode.dir == 3)
+                    if (IsInBounds(corruptNode.x + 1, corruptNode.y - 1, width, height))
+                    {
+                        other = grid[corruptNode.x + 1, corruptNode.y - 1];
+                        if (other.dir > -1)
+                            if (!corrupted.Contains(other))
+                            {
+                                spread = GetDirDifficultyPer(3, corruptNode.dir);
+                                for (int nV = 0; nV < corruptNode.values.Count; nV++)
+                                {
+                                    spreadCalc = corruptNode.values[nV].spreadAmount * spread;
+                                    corruptNode.values[nV].current -= spreadCalc;
+                                    other.values[nV].current += spreadCalc;
+                                    //print(1);
+                                }
+                            }
+                    }
+                //bottom left
+                if (corruptNode.dir == 5)
+                    if (IsInBounds(corruptNode.x - 1, corruptNode.y - 1, width, height))
+                    {
+                        other = grid[corruptNode.x - 1, corruptNode.y - 1];
+                        if (other.dir > -1)
+                            if (!corrupted.Contains(other))
+                            {
+                                spread = GetDirDifficultyPer(5, corruptNode.dir);
+                                for (int nV = 0; nV < corruptNode.values.Count; nV++)
+                                {
+                                    spreadCalc = corruptNode.values[nV].spreadAmount * spread;
+                                    corruptNode.values[nV].current -= spreadCalc;
+                                    other.values[nV].current += spreadCalc;
+                                    //print(1);
                                 }
                             }
                     }
