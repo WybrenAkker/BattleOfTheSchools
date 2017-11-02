@@ -240,16 +240,44 @@ public class Graph : MonoBehaviour {
                             break;
                     }
                     testLine.material = testMat;
-                    testLine.startWidth = 5;
-                    testLine.endWidth = 5;
-                    testLine.SetPosition(0, pointList[i, pointId].position);
+                    testLine.startWidth = 1;
+                    testLine.endWidth = 1;
+                    testLine.SetPosition(0, GetWorldPosOfPoint(pointList[i, pointId].gameObject));
+                   // print(pointList[i, pointId]);
                     lineId++;
-                    testLine.SetPosition(1, pointList[i, i2].position);
+                    testLine.SetPosition(1, GetWorldPosOfPoint(pointList[i, i2].gameObject));
 
                 }
             }
         }
     }
+
+    Vector3 GetWorldPosOfPoint(GameObject g)
+    {
+        Camera c = Camera.main;
+        Vector3 newPos = g.transform.position;
+        newPos.z = 100;
+        newPos = c.ScreenToWorldPoint(newPos);
+        return newPos;
+    }
+
+    LineRenderer MakeNewLineObject()
+    {
+        GameObject newLineObj = new GameObject();
+        newLineObj.AddComponent<LineRenderer>();
+        LineRenderer newLine = newLineObj.GetComponent<LineRenderer>();
+        // Set line stuff here.
+
+
+
+
+
+
+
+        return newLine;
+
+    }
+
     public void ButtonInput(int i)
     {
         if (isDisplayed[i])
