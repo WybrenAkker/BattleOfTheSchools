@@ -67,11 +67,13 @@ public class Graph : MonoBehaviour {
 
     public bool[] isDisplayed;
 
+    public List<Color> lineColors = new List<Color>();
+    public List<GameObject> buttons = new List<GameObject>();
+
     private void Start()
     {
         for(int p = 0; p < 5; p++)
         {
-            print(p);
             for (int y = 0; y < 24; y++)
             {
                 int randomInt = UnityEngine.Random.Range(0, 101);
@@ -80,6 +82,15 @@ public class Graph : MonoBehaviour {
          //   graphList[vervuiling, uur] = procent vervuiling;
         }
         CreateLines();
+        ColorButtons();
+    }
+
+    void ColorButtons()
+    {
+        for (int i = 0; i < buttons.Count; i++)
+        {
+            buttons[i].GetComponent<Button>().image.color = lineColors[i];
+        }
     }
 
     void CreateLines()
@@ -169,6 +180,7 @@ public class Graph : MonoBehaviour {
                         newPoint.transform.parent = pointHolders.pointHolder5;
                         break;
                 }
+                newPoint.gameObject.GetComponent<Image>().color = lineColors[i];
                 newPoint.transform.position += pointPos;
                 pointList[i, i2] = newPoint.transform;
             }
@@ -226,27 +238,24 @@ public class Graph : MonoBehaviour {
                     switch (i)
                     {
                         case 0:
-                            testMat.color = Color.red;
                             newLineObject.transform.parent = lineHolders.lineHolder1.transform;
                             break;
                         case 1:
-                            testMat.color = Color.blue;
                             newLineObject.transform.parent = lineHolders.lineHolder2.transform;
                             break;
                         case 2:
-                            testMat.color = Color.green;
                             newLineObject.transform.parent = lineHolders.lineHolder3.transform;
                             break;
                         case 3:
-                            testMat.color = Color.white;
                             newLineObject.transform.parent = lineHolders.lineHolder4.transform;
                             break;
                         case 4:
-                            testMat.color = Color.magenta;
                             newLineObject.transform.parent = lineHolders.lineHolder5.transform;
                             break;
                     }
+                    testMat.color = lineColors[i];
                     testLine.material = testMat;
+
                     testLine.startWidth = lineInfo.lineWidth;
                     testLine.endWidth = lineInfo.lineWidth;
                     testLine.SetPosition(0, GetWorldPosOfPoint(pointList[i, pointId].gameObject));
