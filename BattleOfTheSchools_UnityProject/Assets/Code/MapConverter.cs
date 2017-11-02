@@ -14,14 +14,52 @@ public class MapConverter : MonoBehaviour {
     private Transform mapPlane;
     private float planeX, planeY;
 
+    [SerializeField]
+    private int simulateFramesCount = 86400;
+
     private void Awake()
     {
         Vector3 vec = mapPlane.GetComponent<Renderer>().bounds.size;
         planeX = vec.x;
         planeY = vec.z;
         inputNodes = GameObject.FindGameObjectsWithTag("Node");
+        Simulate();
+    }
 
-        CalculateFlow(GetMapData(), 2);
+    [CreateAssetMenu(fileName = "SimFrame", menuName = "Simulation/List", order = 1)]
+    public class SimFrame : ScriptableObject
+    {
+        public List<Node[,]> grids = new List<Node[,]>();
+    }
+
+    [SerializeField]
+    private SimFrame saveData;
+
+    [SerializeField]
+    private List<NodeValue> defaultNode;
+
+    private void Simulate()
+    {
+        MapData data = GetMapData();
+        NodeValue nodeV;
+        //randomize starting data
+        foreach (Node node in data.grid)
+            for(int i = 0; i < defaultNode.Count - 1; i ++)
+            {
+                nodeV = new NodeValue();
+
+                //BARF
+                nodeV.acceptable = defaultNode[i].acceptable;
+                nodeV.maxValue = defaultNode[i].maxValue;
+                nodeV.spreadAmount = defaultNode[i].spreadAmount;
+                nodeV.threshold = defaultNode[i].threshold;
+
+                nodeV.Ran();
+                node.values.Add(nodeV);
+            }
+        saveData.grids.Clear();
+
+        StartCoroutine(CalculateFlow(data, simulateFramesCount));
     }
 
     private GameObject[] inputNodes;
@@ -47,176 +85,204 @@ public class MapConverter : MonoBehaviour {
         return ret;
     }
 
-    public void CalculateFlow(MapData data, int timeDif)
+    [SerializeField]
+    private int curturn; //debugging
+    public IEnumerator CalculateFlow(MapData data, int timeDif)
     {
-        bool allNodesDone = false;
-        while (!allNodesDone)
+        int executedTurns = 0;
+        int recordedTurns = 0;
+        while (recordedTurns < timeDif)
         {
-            foreach(Node node in data.grid)
-            {
-                int maxTurns = Mathf.RoundToInt(timeDif / node.spreadRes);
-                if (node.processedTurns > maxTurns)
-                {
-                    allNodesDone = true;
-                }
-                else
-                {
-                    allNodesDone = false;
-                    break;
-                }
-            }
-
-            if(allNodesDone)
-            {
-                break;
-            }
-
+            executedTurns++;
+            recordedTurns++;
+            curturn = executedTurns;
+            int nodeTurns = 0;
             foreach (Node node in data.grid)
             {
-                int maxTurns = Mathf.RoundToInt(timeDif / node.spreadRes);
+                int maxPerTurn = Mathf.RoundToInt(1 / node.spreadRes);
 
-                if (node.processedTurns > maxTurns)
+                while (nodeTurns < maxPerTurn)
                 {
-                    continue;
-                }
+                    nodeTurns++;
 
-                node.processedTurns += 1;
+                    node.processedTurns += 1;
 
-                List<Node> nodesToCheck = GetNodesFromDir(node.x, node.y, node.dir, data).ToList();
+                    List<Node> nodesToCheck = GetNodesFromDir(node.x, node.y, node.dir, data).ToList(); //somehow values arent being set
 
-                if (nodesToCheck[0] == node || nodesToCheck.Count == 0)
-                    continue;
+                    if (nodesToCheck[0] == node || nodesToCheck.Count == 0)
+                        continue;
 
-                int maxX = data.grid.GetLength(0);
-                int maxY = data.grid.GetLength(1);
-                int dir = node.dir;
+                    int maxX = data.grid.GetLength(0);
+                    int maxY = data.grid.GetLength(1);
+                    int dir = node.dir;
 
-                int spreadDir = 0;
+                    int spreadDir = 0;
 
-                int x = node.x;
-                int y = node.y;
-                #region Uglyness (Pit of shame)
-                if (dir == 0)
-                {
-                    spreadDir = 1;
-                    if (IsInBounds(x + 1, y + 1, maxX, maxY))
+                    int x = node.x;
+                    int y = node.y;
+                    #region Uglyness (Pit of shame)
+                    if (dir == 0)
                     {
-                        nodesToCheck.Add(data.grid[x + 1, y + 1]);
-                    }
-                    if (IsInBounds(x - 1, y + 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x - 1, y + 1]);
-                    }
-                }
-                if (dir == 1)
-                {
-                    spreadDir = 2;
-                    if (IsInBounds(x, y + 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x, y + 1]);
-                    }
-                    if (IsInBounds(x + 1, y, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x + 1, y]);
-                    }
-                }
-                if (dir == 2)
-                {
-                    spreadDir = 3;
-                    if (IsInBounds(x + 1, y + 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x + 1, y + 1]);
-                    }
-                    if (IsInBounds(x + 1, y - 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x + 1, y - 1]);
-                    }
-                }
-                if (dir == 3)
-                {
-                    spreadDir = 4;
-                    if (IsInBounds(x, y - 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x, y - 1]);
-                    }
-                    if (IsInBounds(x + 1, y, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x + 1, y]);
-                    }
-                }
-                if (dir == 4)
-                {
-                    spreadDir = 5;
-                    if (IsInBounds(x - 1, y - 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x - 1, y - 1]);
-                    }
-                    if (IsInBounds(x + 1, y - 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x + 1, y - 1]);
-                    }
-                }
-                if (dir == 5)
-                {
-                    spreadDir = 6;
-                    if (IsInBounds(x, y - 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x, y - 1]);
-                    }
-                    if (IsInBounds(x - 1, y, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x - 1, y]);
-                    }
-                }
-                if (dir == 6)
-                {
-                    spreadDir = 7;
-                    if (IsInBounds(x - 1, y + 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x - 1, y + 1]);
-                    }
-                    if (IsInBounds(x - 1, y - 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x - 1, y - 1]);
-                    }
-                }
-                if (dir == 7)
-                {
-                    spreadDir = 0;
-                    if (IsInBounds(x - 1, y, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x - 1, y]);
-                    }
-                    if (IsInBounds(x, y + 1, maxX, maxY))
-                    {
-                        nodesToCheck.Add(data.grid[x, y + 1]);
-                    }
-                }
-                #endregion
-
-                int cost = GetDirDifficulty(spreadDir, dir);
-
-                for (int i = 0; i < nodesToCheck.Count; i++)
-                {
-                    if (i == 0)
-                    {
-                        for (int j = 0; j < nodesToCheck[i].values.values.Count; j++)
+                        spreadDir = 1;
+                        if (IsInBounds(x + 1, y + 1, maxX, maxY))
                         {
-                            NodeValue nValue = node.values.values[j];
-                            nValue.current = nValue.current * node.spreadRes;
+                            nodesToCheck.Add(data.grid[x + 1, y + 1]);
+                        }
+                        if (IsInBounds(x - 1, y + 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x - 1, y + 1]);
                         }
                     }
-                    else
+                    if (dir == 1)
                     {
-                        for (int j = 0; j < nodesToCheck[i].values.values.Count; j++)
+                        spreadDir = 2;
+                        if (IsInBounds(x, y + 1, maxX, maxY))
                         {
-                            NodeValue nValue = node.values.values[j];
-                            nValue.current = nValue.current * (node.spreadRes / cost);
+                            nodesToCheck.Add(data.grid[x, y + 1]);
+                        }
+                        if (IsInBounds(x + 1, y, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x + 1, y]);
+                        }
+                    }
+                    if (dir == 2)
+                    {
+                        spreadDir = 3;
+                        if (IsInBounds(x + 1, y + 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x + 1, y + 1]);
+                        }
+                        if (IsInBounds(x + 1, y - 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x + 1, y - 1]);
+                        }
+                    }
+                    if (dir == 3)
+                    {
+                        spreadDir = 4;
+                        if (IsInBounds(x, y - 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x, y - 1]);
+                        }
+                        if (IsInBounds(x + 1, y, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x + 1, y]);
+                        }
+                    }
+                    if (dir == 4)
+                    {
+                        spreadDir = 5;
+                        if (IsInBounds(x - 1, y - 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x - 1, y - 1]);
+                        }
+                        if (IsInBounds(x + 1, y - 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x + 1, y - 1]);
+                        }
+                    }
+                    if (dir == 5)
+                    {
+                        spreadDir = 6;
+                        if (IsInBounds(x, y - 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x, y - 1]);
+                        }
+                        if (IsInBounds(x - 1, y, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x - 1, y]);
+                        }
+                    }
+                    if (dir == 6)
+                    {
+                        spreadDir = 7;
+                        if (IsInBounds(x - 1, y + 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x - 1, y + 1]);
+                        }
+                        if (IsInBounds(x - 1, y - 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x - 1, y - 1]);
+                        }
+                    }
+                    if (dir == 7)
+                    {
+                        spreadDir = 0;
+                        if (IsInBounds(x - 1, y, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x - 1, y]);
+                        }
+                        if (IsInBounds(x, y + 1, maxX, maxY))
+                        {
+                            nodesToCheck.Add(data.grid[x, y + 1]);
+                        }
+                    }
+                    #endregion
+
+                    int cost = GetDirDifficulty(spreadDir, dir);
+
+                    for (int i = 0; i < nodesToCheck.Count; i++)
+                    {
+                        if (i == 0)
+                        {
+                            for (int j = 0; j < node.values.Count; j++)
+                            {
+                                NodeValue nValue = node.values[j];
+                                nValue.current = nValue.current * node.spreadRes;
+                            }
+                        }
+                        else
+                        {
+                            for (int j = 0; j < node.values.Count; j++)
+                            {
+                                NodeValue nValue = node.values[j];
+                                nValue.current = nValue.current * (node.spreadRes / cost);
+                            }
                         }
                     }
                 }
             }
+
+            if (executedTurns == 500) //3600
+            {
+                print(saveData.grids.Count + 1);
+                saveData.grids.Add(data.grid);
+                executedTurns = 0;
+                if (debugVisually)
+                    DebugVisuals();
+            }
+
+            yield return null;
         }
+    }
+
+    [SerializeField]
+    private bool debugVisually;
+    [SerializeField]
+    private Material ground;
+    public Color defaultCol, debugCol;
+    private void DebugVisuals()
+    {
+        Texture2D tex = new Texture2D(width, height);
+        Color c;
+        for (int w = 0; w < width; w++)
+            for (int h = 0; h < height; h++)
+            {
+                c = Color.white;
+                if (saveData.grids[saveData.grids.Count - 1][w, h].dir < 0)
+                {
+                    c.a = 0;
+                    tex.SetPixel(w, h, c);
+                    continue;
+                }
+
+                //FILTHY
+                c = Color.Lerp(defaultCol, debugCol, saveData.grids[saveData.grids.Count - 1][w, h].values[0].current /
+                    saveData.grids[saveData.grids.Count - 1][w, h].values[0].maxValue);
+                tex.SetPixel(w, h, c);
+            }
+        tex.Apply();
+        ground.mainTexture = tex;
     }
 
     Node[] GetNodesFromDir(int x, int y, int dir, MapData data)
@@ -307,7 +373,6 @@ public class MapConverter : MonoBehaviour {
         }
         else
         {
-            Debug.LogError("Wrong direction number: " + dir.ToString() + " does not exist.");
             Node[] nodesToReturn = new Node[1];
             nodesToReturn[0] = data.grid[x, y];
             return nodesToReturn;
@@ -400,6 +465,14 @@ public class MapConverter : MonoBehaviour {
     }
 
     #endregion
+
+    public static List<T> CloneList<T>(List<T> clonable)
+    {
+        List<T> ret = new List<T>();
+        foreach (T trans in clonable)
+            ret.Add(Clone(trans));
+        return ret;
+    }
 
     public static T Clone<T>(T source)
     {
