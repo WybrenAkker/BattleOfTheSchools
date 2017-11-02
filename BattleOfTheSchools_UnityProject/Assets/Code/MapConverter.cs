@@ -250,10 +250,181 @@ public class MapConverter : MonoBehaviour {
                 executedTurns = 0;
                 if (debugVisually)
                     DebugVisuals();
+
+                //temp
+                int x = 0, y = 0;
+                while(data.grid[x,y].dir < 0)
+                {
+                    x = Random.Range(0, width);
+                    y = Random.Range(0, height);
+                }
             }
 
             yield return null;
         }
+    }
+
+    private struct OpenNode
+    {
+        public Node node;
+        public int dis;
+
+        public OpenNode(Node node, int dis)
+        {
+            this.node = node;
+            this.dis = dis;
+        }
+    }
+
+    public List<Node> GetNodesInArea(int dis, Node center, Node[,] grid)
+    {
+        List<Node> ret = new List<Node>(); //closed
+        List<Node> closed = new List<Node>();
+        List<OpenNode> open = new List<OpenNode>() {new OpenNode(center, 0) };
+        OpenNode node;
+        Node testable;
+        int x = grid.GetLength(0), y = grid.GetLength(1);
+
+        while(open.Count > 0)
+        {
+            node = open[0];
+            open.RemoveAt(0);
+            closed.Add(node.node);
+            //check if path is in dis else continue
+
+            if (node.dis > dis)
+                continue;
+            if (node.node.dir < 0)
+                continue;
+            ret.Add(node.node);
+
+            //check adjecent
+            #region Check Neighbours
+
+            //top
+            if (IsInBounds(node.node.x, node.node.y + 1, x, y))
+            {
+                testable = grid[node.node.x, node.node.y + 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(0, node.node.dir) + 1)); //also calculate spread map
+            }
+            
+            //top right
+            if (IsInBounds(node.node.x + 1, node.node.y + 1, x, y))
+            {
+                testable = grid[node.node.x + 1, node.node.y + 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(1, node.node.dir))); //also calculate spread map
+            }
+            
+            //right
+            if (IsInBounds(node.node.x + 1, node.node.y, x, y))
+            {
+                testable = grid[node.node.x + 1, node.node.y];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(2, node.node.dir))); //also calculate spread map
+            }
+
+            //down right
+            if (IsInBounds(node.node.x + 1, node.node.y - 1, x, y))
+            {
+                testable = grid[node.node.x + 1, node.node.y - 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(3, node.node.dir))); //also calculate spread map
+            }
+
+            //down
+            if (IsInBounds(node.node.x, node.node.y - 1, x, y))
+            {
+                testable = grid[node.node.x, node.node.y - 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(4, node.node.dir))); //also calculate spread map
+            }
+
+            //down left
+            if (IsInBounds(node.node.x - 1, node.node.y - 1, x, y))
+            {
+                testable = grid[node.node.x - 1, node.node.y - 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(5, node.node.dir))); //also calculate spread map
+            }
+
+            //left
+            if (IsInBounds(node.node.x - 1, node.node.y, x, y))
+            {
+                testable = grid[node.node.x - 1, node.node.y];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(6, node.node.dir))); //also calculate spread map
+            }
+
+            //top left
+            if (IsInBounds(node.node.x - 1, node.node.y + 1, x, y))
+            {
+                testable = grid[node.node.x - 1, node.node.y + 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(7, node.node.dir))); //also calculate spread map
+            }
+            
+            #endregion
+        }
+
+        return ret;
     }
 
     [SerializeField]
@@ -268,7 +439,7 @@ public class MapConverter : MonoBehaviour {
         for (int w = 0; w < width; w++)
             for (int h = 0; h < height; h++)
             {
-                c = Color.white;
+                c = Color.black;
                 if (saveData.grids[saveData.grids.Count - 1][w, h].dir < 0)
                 {
                     c.a = 0;
