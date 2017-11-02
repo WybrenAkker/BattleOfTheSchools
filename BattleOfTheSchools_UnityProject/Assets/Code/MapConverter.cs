@@ -59,7 +59,9 @@ public class MapConverter : MonoBehaviour {
             }
         saveData.grids.Clear();
 
-        StartCoroutine(CalculateFlow(data, simulateFramesCount));
+        if (calculateFlow != null)
+            StopCoroutine(calculateFlow);
+        calculateFlow = StartCoroutine(CalculateFlow(data, simulateFramesCount));
     }
 
     private GameObject[] inputNodes;
@@ -85,6 +87,16 @@ public class MapConverter : MonoBehaviour {
         return ret;
     }
 
+    public void Resume(Node[,] startPoint, int timeDif)
+    {
+        if (calculateFlow != null)
+            StopCoroutine(calculateFlow);
+        MapData temp = new MapData();
+        temp.grid = startPoint;
+        calculateFlow = StartCoroutine(CalculateFlow(temp, timeDif));
+    }
+
+    private Coroutine calculateFlow;
     [SerializeField]
     private int curturn; //debugging
     public IEnumerator CalculateFlow(MapData data, int timeDif)
