@@ -16,7 +16,7 @@ public class Timeline : MonoBehaviour
     {
         gameManager = GameObject.Find("GameManager");
         mc = gameManager.GetComponent<MapConverter>();
-        //imaginarySecondsBetweenHours = mc.imaginaryTimeBetweenHours;
+        imaginarySecondsBetweenHours = mc.reqExecutedTurns;
     }
 
     public void OnValueChanged()
