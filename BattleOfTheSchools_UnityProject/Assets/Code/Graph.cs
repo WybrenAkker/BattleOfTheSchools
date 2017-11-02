@@ -289,4 +289,8 @@ public class Graph : MonoBehaviour {
                 break;
         }
     }
+    public void TimeLine(float f)
+    {
+
+    }
 }
