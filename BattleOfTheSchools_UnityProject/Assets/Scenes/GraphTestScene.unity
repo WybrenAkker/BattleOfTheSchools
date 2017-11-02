@@ -3939,7 +3939,7 @@ MonoBehaviour:
     lineHolder4: {fileID: 0}
     lineHolder5: {fileID: 0}
   pointImage: {fileID: 1794544816581548, guid: 42f0bb80b5afb7d47be61472648b285f, type: 2}
-  isDisplayed: 0000000000
+  isDisplayed: 0101010101
 --- !u!1 &1746570678
 GameObject:
   m_ObjectHideFlags: 0
