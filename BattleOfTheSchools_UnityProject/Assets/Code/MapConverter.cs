@@ -89,6 +89,12 @@ public class MapConverter : MonoBehaviour {
     private int curturn; //debugging
     public IEnumerator CalculateFlow(MapData data, int timeDif)
     {
+        //convert to new
+        Node[,] grid = new Node[data.grid.GetLength(0), data.grid.GetLength(1)];
+        for (int x = 0; x < grid.GetLength(0); x++)
+            for (int y = 0; y < grid.GetLength(1); y++)
+                grid[x, y] = new Node(data.grid[x,y]);
+
         int executedTurns = 0;
         int recordedTurns = 0;
         while (recordedTurns < timeDif)
@@ -97,7 +103,7 @@ public class MapConverter : MonoBehaviour {
             recordedTurns++;
             curturn = executedTurns;
             int nodeTurns = 0;
-            foreach (Node node in data.grid)
+            foreach (Node node in grid)
             {
                 int maxPerTurn = Mathf.RoundToInt(1 / node.spreadRes);
 
@@ -112,8 +118,8 @@ public class MapConverter : MonoBehaviour {
                     if (nodesToCheck[0] == node || nodesToCheck.Count == 0)
                         continue;
 
-                    int maxX = data.grid.GetLength(0);
-                    int maxY = data.grid.GetLength(1);
+                    int maxX = grid.GetLength(0);
+                    int maxY = grid.GetLength(1);
                     int dir = node.dir;
 
                     int spreadDir = 0;
@@ -126,11 +132,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 1;
                         if (IsInBounds(x + 1, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y + 1]);
+                            nodesToCheck.Add(grid[x + 1, y + 1]);
                         }
                         if (IsInBounds(x - 1, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y + 1]);
+                            nodesToCheck.Add(grid[x - 1, y + 1]);
                         }
                     }
                     if (dir == 1)
@@ -138,11 +144,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 2;
                         if (IsInBounds(x, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x, y + 1]);
+                            nodesToCheck.Add(grid[x, y + 1]);
                         }
                         if (IsInBounds(x + 1, y, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y]);
+                            nodesToCheck.Add(grid[x + 1, y]);
                         }
                     }
                     if (dir == 2)
@@ -150,11 +156,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 3;
                         if (IsInBounds(x + 1, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y + 1]);
+                            nodesToCheck.Add(grid[x + 1, y + 1]);
                         }
                         if (IsInBounds(x + 1, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y - 1]);
+                            nodesToCheck.Add(grid[x + 1, y - 1]);
                         }
                     }
                     if (dir == 3)
@@ -162,11 +168,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 4;
                         if (IsInBounds(x, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x, y - 1]);
+                            nodesToCheck.Add(grid[x, y - 1]);
                         }
                         if (IsInBounds(x + 1, y, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y]);
+                            nodesToCheck.Add(grid[x + 1, y]);
                         }
                     }
                     if (dir == 4)
@@ -174,11 +180,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 5;
                         if (IsInBounds(x - 1, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y - 1]);
+                            nodesToCheck.Add(grid[x - 1, y - 1]);
                         }
                         if (IsInBounds(x + 1, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y - 1]);
+                            nodesToCheck.Add(grid[x + 1, y - 1]);
                         }
                     }
                     if (dir == 5)
@@ -186,11 +192,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 6;
                         if (IsInBounds(x, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x, y - 1]);
+                            nodesToCheck.Add(grid[x, y - 1]);
                         }
                         if (IsInBounds(x - 1, y, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y]);
+                            nodesToCheck.Add(grid[x - 1, y]);
                         }
                     }
                     if (dir == 6)
@@ -198,11 +204,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 7;
                         if (IsInBounds(x - 1, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y + 1]);
+                            nodesToCheck.Add(grid[x - 1, y + 1]);
                         }
                         if (IsInBounds(x - 1, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y - 1]);
+                            nodesToCheck.Add(grid[x - 1, y - 1]);
                         }
                     }
                     if (dir == 7)
@@ -210,11 +216,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 0;
                         if (IsInBounds(x - 1, y, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y]);
+                            nodesToCheck.Add(grid[x - 1, y]);
                         }
                         if (IsInBounds(x, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x, y + 1]);
+                            nodesToCheck.Add(grid[x, y + 1]);
                         }
                     }
                     #endregion
@@ -243,10 +249,10 @@ public class MapConverter : MonoBehaviour {
                 }
             }
 
-            if (executedTurns == 500) //3600
+            if (executedTurns == reqExecutedTurns)
             {
                 print(saveData.grids.Count + 1);
-                saveData.grids.Add(data.grid);
+                saveData.grids.Add(grid);
                 executedTurns = 0;
                 if (debugVisually)
                     DebugVisuals();
@@ -255,6 +261,8 @@ public class MapConverter : MonoBehaviour {
             yield return null;
         }
     }
+
+    public int reqExecutedTurns = 3600;
 
     private struct OpenNode
     {
