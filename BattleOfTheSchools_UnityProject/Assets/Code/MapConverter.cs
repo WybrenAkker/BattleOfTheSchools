@@ -41,22 +41,25 @@ public class MapConverter : MonoBehaviour {
     private void Simulate()
     {
         MapData data = GetMapData();
+
         NodeValue nodeV;
         //randomize starting data
         foreach (Node node in data.grid)
-            for(int i = 0; i < defaultNode.Count - 1; i ++)
-            {
-                nodeV = new NodeValue();
+            if(node.dir > -1)
+                for(int i = 0; i < defaultNode.Count; i ++)
+                {
+                    nodeV = new NodeValue();
 
-                //BARF
-                nodeV.acceptable = defaultNode[i].acceptable;
-                nodeV.maxValue = defaultNode[i].maxValue;
-                nodeV.spreadAmount = defaultNode[i].spreadAmount;
-                nodeV.threshold = defaultNode[i].threshold;
+                    //BARF
+                    nodeV.acceptable = defaultNode[i].acceptable;
+                    nodeV.maxValue = defaultNode[i].maxValue;
+                    nodeV.spreadAmount = defaultNode[i].spreadAmount;
+                    nodeV.threshold = defaultNode[i].threshold;
 
-                nodeV.Ran();
-                node.values.Add(nodeV);
-            }
+                    nodeV.Ran();               
+                    node.values.Add(nodeV);
+                }
+
         saveData.grids.Clear();
 
         if (calculateFlow != null)
@@ -70,10 +73,11 @@ public class MapConverter : MonoBehaviour {
         MapData ret = new MapData();
         //convert image to grid with directions
         ret.grid = SendInputDir(flowTex);
-        AddFlow(flowTex, ret.grid);
-        
-        ret.inputNodes = new InputNodePos[inputNodes.Length];
 
+        AddFlow(flowTex, ret.grid);
+
+        ret.inputNodes = new InputNodePos[inputNodes.Length];
+        
         //calc node positions in grid
         Vector3 pos;
         for (int i = 0; i < inputNodes.Length; i++)
@@ -96,181 +100,133 @@ public class MapConverter : MonoBehaviour {
         calculateFlow = StartCoroutine(CalculateFlow(temp, timeDif));
     }
 
-    private Coroutine calculateFlow;
     [SerializeField]
-    private int curturn; //debugging
+    private int loopsPerFrame = 500;
+    private Coroutine calculateFlow;
     public IEnumerator CalculateFlow(MapData data, int timeDif)
     {
+        float spread, spreadCalc;
         //convert to new
         Node[,] grid = new Node[data.grid.GetLength(0), data.grid.GetLength(1)];
         for (int x = 0; x < grid.GetLength(0); x++)
             for (int y = 0; y < grid.GetLength(1); y++)
                 grid[x, y] = new Node(data.grid[x,y]);
 
-        int executedTurns = 0;
-        int recordedTurns = 0;
-        while (recordedTurns < timeDif)
+        int timeUntilSnapShot = reqExecutedTurns;
+        int timeLeft = timeDif;
+        List<Node> corrupted = new List<Node>();
+        int loop = 0;
+        while (timeLeft > 0)
         {
-            executedTurns++;
-            recordedTurns++;
-            curturn = executedTurns;
-            int nodeTurns = 0;
-            foreach (Node node in grid)
-            {
-                int maxPerTurn = Mathf.RoundToInt(1 / node.spreadRes);
+            print("+1 Frame");
 
-                while (nodeTurns < maxPerTurn)
+            timeUntilSnapShot--;
+            timeLeft--;         
+            corrupted.Clear();
+
+            foreach(Node node in grid)
+                if(node.dir > -1)
+                    foreach(NodeValue nV in node.values)
+                        if(nV.current > nV.threshold)
+                        {
+                            corrupted.Add(node);
+                            break;
+                        }
+            
+            Node other;
+            foreach (Node corruptNode in corrupted)
+            {
+                loop++;
+                if(loop > loopsPerFrame)
                 {
-                    nodeTurns++;
-
-                    node.processedTurns += 1;
-
-                    List<Node> nodesToCheck = GetNodesFromDir(node.x, node.y, node.dir, data).ToList(); //somehow values arent being set
-
-                    if (nodesToCheck[0] == node || nodesToCheck.Count == 0)
-                        continue;
-
-                    int maxX = grid.GetLength(0);
-                    int maxY = grid.GetLength(1);
-                    int dir = node.dir;
-
-                    int spreadDir = 0;
-
-                    int x = node.x;
-                    int y = node.y;
-                    #region Uglyness (Pit of shame)
-                    if (dir == 0)
-                    {
-                        spreadDir = 1;
-                        if (IsInBounds(x + 1, y + 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x + 1, y + 1]);
-                        }
-                        if (IsInBounds(x - 1, y + 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x - 1, y + 1]);
-                        }
-                    }
-                    if (dir == 1)
-                    {
-                        spreadDir = 2;
-                        if (IsInBounds(x, y + 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x, y + 1]);
-                        }
-                        if (IsInBounds(x + 1, y, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x + 1, y]);
-                        }
-                    }
-                    if (dir == 2)
-                    {
-                        spreadDir = 3;
-                        if (IsInBounds(x + 1, y + 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x + 1, y + 1]);
-                        }
-                        if (IsInBounds(x + 1, y - 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x + 1, y - 1]);
-                        }
-                    }
-                    if (dir == 3)
-                    {
-                        spreadDir = 4;
-                        if (IsInBounds(x, y - 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x, y - 1]);
-                        }
-                        if (IsInBounds(x + 1, y, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x + 1, y]);
-                        }
-                    }
-                    if (dir == 4)
-                    {
-                        spreadDir = 5;
-                        if (IsInBounds(x - 1, y - 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x - 1, y - 1]);
-                        }
-                        if (IsInBounds(x + 1, y - 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x + 1, y - 1]);
-                        }
-                    }
-                    if (dir == 5)
-                    {
-                        spreadDir = 6;
-                        if (IsInBounds(x, y - 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x, y - 1]);
-                        }
-                        if (IsInBounds(x - 1, y, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x - 1, y]);
-                        }
-                    }
-                    if (dir == 6)
-                    {
-                        spreadDir = 7;
-                        if (IsInBounds(x - 1, y + 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x - 1, y + 1]);
-                        }
-                        if (IsInBounds(x - 1, y - 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x - 1, y - 1]);
-                        }
-                    }
-                    if (dir == 7)
-                    {
-                        spreadDir = 0;
-                        if (IsInBounds(x - 1, y, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x - 1, y]);
-                        }
-                        if (IsInBounds(x, y + 1, maxX, maxY))
-                        {
-                            nodesToCheck.Add(grid[x, y + 1]);
-                        }
-                    }
-                    #endregion
-
-                    int cost = GetDirDifficulty(spreadDir, dir);
-
-                    for (int i = 0; i < nodesToCheck.Count; i++)
-                    {
-                        if (i == 0)
-                        {
-                            for (int j = 0; j < node.values.Count; j++)
-                            {
-                                NodeValue nValue = node.values[j];
-                                nValue.current = nValue.current * node.spreadRes;
-                            }
-                        }
-                        else
-                        {
-                            for (int j = 0; j < node.values.Count; j++)
-                            {
-                                NodeValue nValue = node.values[j];
-                                nValue.current = nValue.current * (node.spreadRes / cost);
-                            }
-                        }
-                    }
+                    yield return null;
+                    loop = 0;
                 }
+                //top
+                if (corruptNode.dir == 0 || corruptNode.dir == 1 || corruptNode.dir == 7)
+                    if (IsInBounds(corruptNode.x, corruptNode.y + 1, width, height))
+                    {
+                        other = grid[corruptNode.x, corruptNode.y + 1];
+                        if(other.dir > -1)
+                            if (!corrupted.Contains(other))
+                            {
+                                spread = GetDirDifficultyPer(0, corruptNode.dir);
+                                for (int nV = 0; nV < corruptNode.values.Count; nV++)
+                                {
+                                    spreadCalc = corruptNode.values[nV].spreadAmount * spread;
+                                    corruptNode.values[nV].current -= spreadCalc;
+                                    other.values[nV].current += spreadCalc;
+                                    //print(1);
+                                }
+                            }
+                    }
+                //bottom
+                if (corruptNode.dir == 4 || corruptNode.dir == 5 || corruptNode.dir == 3)
+                    if (IsInBounds(corruptNode.x, corruptNode.y - 1, width, height))
+                    {
+                        other = grid[corruptNode.x, corruptNode.y - 1];
+                        if (other.dir > -1)
+                            if (!corrupted.Contains(other))
+                            {
+                                spread = GetDirDifficultyPer(4, corruptNode.dir);
+                                for (int nV = 0; nV < corruptNode.values.Count; nV++)
+                                {
+                                    spreadCalc = corruptNode.values[nV].spreadAmount * spread;
+                                    corruptNode.values[nV].current -= spreadCalc;
+                                    other.values[nV].current += spreadCalc;
+                                    //print(2);
+                                }
+                            }
+                    }
+                //right
+                if (corruptNode.dir == 2)
+                    if (IsInBounds(corruptNode.x + 1, corruptNode.y, width, height))
+                    {
+                        other = grid[corruptNode.x + 1, corruptNode.y];
+                        if (other.dir > -1)
+                            if (!corrupted.Contains(other))
+                            {
+                                spread = GetDirDifficultyPer(2, corruptNode.dir);
+                                for (int nV = 0; nV < corruptNode.values.Count; nV++)
+                                {
+                                    spreadCalc = corruptNode.values[nV].spreadAmount * spread;
+                                    corruptNode.values[nV].current -= spreadCalc;
+                                    other.values[nV].current += spreadCalc;
+                                    //print(3);
+                                }
+                            }
+                    }
+                //left
+                if (corruptNode.dir == 6)
+                    if (IsInBounds(corruptNode.x - 1, corruptNode.y, width, height))
+                    {
+                        other = grid[corruptNode.x - 1, corruptNode.y];
+                        if (other.dir > -1)
+                            if (!corrupted.Contains(other))
+                            {
+                                spread = GetDirDifficultyPer(6, corruptNode.dir);
+                                for (int nV = 0; nV < corruptNode.values.Count; nV++)
+                                {
+                                    spreadCalc = corruptNode.values[nV].spreadAmount * spread;
+                                    corruptNode.values[nV].current -= spreadCalc;
+                                    other.values[nV].current += spreadCalc;
+                                    //print(4);
+                                }
+                            }
+                    }
             }
 
-            if (executedTurns == reqExecutedTurns)
+            if (timeUntilSnapShot <= 0)
             {
-                print(saveData.grids.Count + 1);
-                saveData.grids.Add(grid);
-                executedTurns = 0;
-                if (debugVisually)
+                Node[,] newGrid = new Node[width, height];
+                for (int w = 0; w < width; w++)
+                    for (int h = 0; h < height; h++)
+                        newGrid[w, h] = new Node(grid[w,h]);
+                saveData.grids.Add(newGrid);
+                if(debugVisually)
                     DebugVisuals();
+                timeUntilSnapShot = reqExecutedTurns;
             }
-
-            yield return null;
         }
     }
 
@@ -448,6 +404,7 @@ public class MapConverter : MonoBehaviour {
     {
         Texture2D tex = new Texture2D(width, height);
         Color c;
+        print("Snapshot taken.");
         for (int w = 0; w < width; w++)
             for (int h = 0; h < height; h++)
             {
@@ -458,109 +415,21 @@ public class MapConverter : MonoBehaviour {
                     tex.SetPixel(w, h, c);
                     continue;
                 }
-
+                
                 //FILTHY
                 c = Color.Lerp(defaultCol, debugCol, saveData.grids[saveData.grids.Count - 1][w, h].values[0].current /
                     saveData.grids[saveData.grids.Count - 1][w, h].values[0].maxValue);
                 tex.SetPixel(w, h, c);
             }
+        
         tex.Apply();
         ground.mainTexture = tex;
     }
 
-    Node[] GetNodesFromDir(int x, int y, int dir, MapData data)
+    private float GetDirDifficultyPer(int dir, int flowdir)
     {
-        //-1 = no dir, 0 = up, 1 = upRight, 2 = right, 3 = downRight, 4 = down, 5 = downLeft, 6 = left, 7 = upLeft
-
-        int maxX = data.grid.GetLength(0);
-        int maxY = data.grid.GetLength(1);
-
-        #region more Uglyness
-        if (dir == -1)
-        {
-            Node[] nodesToReturn = new Node[1];
-            nodesToReturn[0] = data.grid[x, y];
-            return nodesToReturn;
-        }
-        if(dir == 0)
-        {
-            List<Node> nodesToReturn = new List<Node>();
-            if (IsInBounds(x, y + 1, maxX, maxY))
-            {
-                nodesToReturn.Add(data.grid[x, y + 1]);
-            }
-            return nodesToReturn.ToArray();
-        }
-        if (dir == 1)
-        {
-            List<Node> nodesToReturn = new List<Node>();
-            if (IsInBounds(x + 1, y + 1, maxX, maxY))
-            {
-                nodesToReturn.Add(data.grid[x + 1, y + 1]);
-            }
-            return nodesToReturn.ToArray();
-        }
-        if (dir == 2)
-        {
-            List<Node> nodesToReturn = new List<Node>();
-            if (IsInBounds(x + 1, y, maxX, maxY))
-            {
-                nodesToReturn.Add(data.grid[x + 1, y]);
-            }
-            return nodesToReturn.ToArray();
-        }
-        if (dir == 3)
-        {
-            List<Node> nodesToReturn = new List<Node>();
-            if (IsInBounds(x + 1, y - 1, maxX, maxY))
-            {
-                nodesToReturn.Add(data.grid[x + 1, y - 1]);
-            }
-            return nodesToReturn.ToArray();
-        }
-        if (dir == 4)
-        {
-            List<Node> nodesToReturn = new List<Node>();
-            if (IsInBounds(x, y - 1, maxX, maxY))
-            {
-                nodesToReturn.Add(data.grid[x, y - 1]);
-            }
-            return nodesToReturn.ToArray();
-        }
-        if (dir == 5)
-        {
-            List<Node> nodesToReturn = new List<Node>();
-            if (IsInBounds(x - 1, y - 1, maxX, maxY))
-            {
-                nodesToReturn.Add(data.grid[x - 1, y - 1]);
-            }
-            return nodesToReturn.ToArray();
-        }
-        if (dir == 6)
-        {
-            List<Node> nodesToReturn = new List<Node>();
-            if (IsInBounds(x - 1, y, maxX, maxY))
-            {
-                nodesToReturn.Add(data.grid[x - 1, y]);
-            }
-            return nodesToReturn.ToArray();
-        }
-        if (dir == 7)
-        {
-            List<Node> nodesToReturn = new List<Node>();
-            if (IsInBounds(x - 1, y + 1, maxX, maxY))
-            {
-                nodesToReturn.Add(data.grid[x - 1, y + 1]);
-            }
-            return nodesToReturn.ToArray();
-        }
-        else
-        {
-            Node[] nodesToReturn = new Node[1];
-            nodesToReturn[0] = data.grid[x, y];
-            return nodesToReturn;
-        }
-    #endregion
+        float res = 6 - GetDirDifficulty(dir, flowdir);
+        return res / 6;
     }
 
     private int GetDirDifficulty(int dir, int flowDir)
@@ -643,8 +512,8 @@ public class MapConverter : MonoBehaviour {
 
     private float ConvertColorToSpeed(Color c)
     {
-        float per = c.g;
-        return 0.2f * per;
+        float per = c.a;
+        return Mathf.Lerp(0, 1, 0.2f * per);
     }
 
     #endregion
