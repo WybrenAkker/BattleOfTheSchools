@@ -10,7 +10,7 @@ public class InputNode : MonoBehaviour {
 }
 
 [Serializable]
-public struct NodeValue
+public class NodeValue
 {
     public float current, threshold, acceptable, maxValue, spreadAmount;
 
@@ -27,6 +27,11 @@ public struct NodeValue
         maxValue = other.maxValue;
         spreadAmount = other.spreadAmount;
     }
+
+    public NodeValue()
+    {
+
+    }
 }
 
 [Serializable]
@@ -35,7 +40,7 @@ public class Node
     public int x, y;
     //range 0 - 8
     public int dir = -1, processedTurns; //clock, -1 is no direction, 8 is same as 0
-    public float spreadRes;
+    public float spreadRes = 1;
     public List<NodeValue> values = new List<NodeValue>();
 
     public Node(Node other)
