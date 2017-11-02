@@ -4310,7 +4310,7 @@ Prefab:
     - target: {fileID: 224129634261402034, guid: 94e8dbb31e901c647a74dab7f047ceea,
         type: 2}
       propertyPath: m_AnchoredPosition.x
-      value: 77
+      value: 74.88058
       objectReference: {fileID: 0}
     - target: {fileID: 224129634261402034, guid: 94e8dbb31e901c647a74dab7f047ceea,
         type: 2}
@@ -5231,6 +5231,31 @@ Prefab:
         type: 2}
       propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
       value: ButtonInput
+      objectReference: {fileID: 0}
+    - target: {fileID: 114155968664240610, guid: 94e8dbb31e901c647a74dab7f047ceea,
+        type: 2}
+      propertyPath: lineInfo.lineWidth
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 224944897720314980, guid: 94e8dbb31e901c647a74dab7f047ceea,
+        type: 2}
+      propertyPath: m_AnchorMin.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224944897720314980, guid: 94e8dbb31e901c647a74dab7f047ceea,
+        type: 2}
+      propertyPath: m_AnchorMax.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 224944897720314980, guid: 94e8dbb31e901c647a74dab7f047ceea,
+        type: 2}
+      propertyPath: m_AnchoredPosition.x
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 224944897720314980, guid: 94e8dbb31e901c647a74dab7f047ceea,
+        type: 2}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: 94e8dbb31e901c647a74dab7f047ceea, type: 2}

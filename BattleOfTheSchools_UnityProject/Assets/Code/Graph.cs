@@ -45,7 +45,7 @@ public class Graph : MonoBehaviour {
     [Serializable]
     public class LineInfo
     {
-        public int lineWidth;
+        public float lineWidth;
     }
 
     public int[,] graphList = new int[5,24];
@@ -120,7 +120,7 @@ public class Graph : MonoBehaviour {
         CalculateLength();
     }
 
-    void PrepareLines(LineRenderer line, int lineWidth, Color lineColor, Material lineMat)
+    void PrepareLines(LineRenderer line, float lineWidth, Color lineColor, Material lineMat)
     {
    //     print(line.ToString());
         line.startWidth = lineWidth;
