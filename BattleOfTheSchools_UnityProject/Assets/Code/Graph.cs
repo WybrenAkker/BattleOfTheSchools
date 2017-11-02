@@ -42,12 +42,19 @@ public class Graph : MonoBehaviour {
         public float horizontalLength;
     }
 
+    [Serializable]
+    public class LineInfo
+    {
+        public int lineWidth;
+    }
+
     public int[,] graphList = new int[5,24];
     public Transform[,] pointList = new Transform[5,24];
     public GraphBasicPoints graphBasicPoints = new GraphBasicPoints();
     public GraphLength graphLength = new GraphLength();
     public PointHolders pointHolders = new PointHolders();
     public LineHolders lineHolders = new LineHolders();
+    public LineInfo lineInfo = new LineInfo();
 
     public GameObject pointImage;
     public GameObject outsideHolder;
@@ -240,8 +247,8 @@ public class Graph : MonoBehaviour {
                             break;
                     }
                     testLine.material = testMat;
-                    testLine.startWidth = 1;
-                    testLine.endWidth = 1;
+                    testLine.startWidth = lineInfo.lineWidth;
+                    testLine.endWidth = lineInfo.lineWidth;
                     testLine.SetPosition(0, GetWorldPosOfPoint(pointList[i, pointId].gameObject));
                    // print(pointList[i, pointId]);
                     lineId++;
