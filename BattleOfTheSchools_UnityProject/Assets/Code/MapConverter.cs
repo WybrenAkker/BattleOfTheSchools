@@ -578,8 +578,8 @@ public class MapConverter : MonoBehaviour {
 
     private int ConvertColorToDir(Color c)
     {
-        float per = c.r * 100 - 50;
-        return Mathf.RoundToInt(0.08f * per);
+        float per = (c.r * 100 - 50) * 2;
+        return Mathf.RoundToInt(0.07f * per);
     }
 
     private float ConvertColorToSpeed(Color c)
