@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
+  m_IndirectSpecularColor: {r: 0.18028334, g: 0.2257134, b: 0.30692226, a: 1}
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
@@ -3939,7 +3939,7 @@ MonoBehaviour:
     lineHolder4: {fileID: 0}
     lineHolder5: {fileID: 0}
   pointImage: {fileID: 1794544816581548, guid: 42f0bb80b5afb7d47be61472648b285f, type: 2}
-  isDisplayed: 0000000000
+  isDisplayed: 0101010101
 --- !u!1 &1746570678
 GameObject:
   m_ObjectHideFlags: 0
