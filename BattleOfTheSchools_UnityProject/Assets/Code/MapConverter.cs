@@ -9,7 +9,7 @@ using System.Linq;
 public class MapConverter : MonoBehaviour {
 
     [SerializeField]
-    private Texture2D flowTex, spreadTex;
+    private Texture2D flowTex;
     [SerializeField]
     private Transform mapPlane;
     private float planeX, planeY;
