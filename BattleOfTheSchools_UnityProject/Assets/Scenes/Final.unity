@@ -745,7 +745,7 @@ Prefab:
     - target: {fileID: 114187812678228068, guid: e2d38a7d03e953e43be38af3dd8b11a2,
         type: 2}
       propertyPath: debugVisually
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: e2d38a7d03e953e43be38af3dd8b11a2, type: 2}
@@ -5121,7 +5121,7 @@ MeshRenderer:
   m_LightProbeUsage: 1
   m_ReflectionProbeUsage: 1
   m_Materials:
-  - {fileID: 2100000, guid: 04da4bee12a53524c96bfb4837917c2a, type: 2}
+  - {fileID: 2100000, guid: bf4962fcfb88d3940827e3efab3d7511, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -7221,7 +7221,7 @@ Prefab:
     - target: {fileID: 224653193838089728, guid: df830599187f4b74fa515665ae35d221,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: 0
+      value: -50
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_ParentPrefab: {fileID: 100100000, guid: df830599187f4b74fa515665ae35d221, type: 2}
@@ -9689,7 +9689,7 @@ GameObject:
   - component: {fileID: 2068561651}
   m_Layer: 0
   m_Name: Icons
-  m_TagString: Untagged
+  m_TagString: Node
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
