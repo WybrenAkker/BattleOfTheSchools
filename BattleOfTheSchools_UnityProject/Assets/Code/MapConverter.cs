@@ -89,6 +89,12 @@ public class MapConverter : MonoBehaviour {
     private int curturn; //debugging
     public IEnumerator CalculateFlow(MapData data, int timeDif)
     {
+        //convert to new
+        Node[,] grid = new Node[data.grid.GetLength(0), data.grid.GetLength(1)];
+        for (int x = 0; x < grid.GetLength(0); x++)
+            for (int y = 0; y < grid.GetLength(1); y++)
+                grid[x, y] = new Node(data.grid[x,y]);
+
         int executedTurns = 0;
         int recordedTurns = 0;
         while (recordedTurns < timeDif)
@@ -97,7 +103,7 @@ public class MapConverter : MonoBehaviour {
             recordedTurns++;
             curturn = executedTurns;
             int nodeTurns = 0;
-            foreach (Node node in data.grid)
+            foreach (Node node in grid)
             {
                 int maxPerTurn = Mathf.RoundToInt(1 / node.spreadRes);
 
@@ -112,8 +118,8 @@ public class MapConverter : MonoBehaviour {
                     if (nodesToCheck[0] == node || nodesToCheck.Count == 0)
                         continue;
 
-                    int maxX = data.grid.GetLength(0);
-                    int maxY = data.grid.GetLength(1);
+                    int maxX = grid.GetLength(0);
+                    int maxY = grid.GetLength(1);
                     int dir = node.dir;
 
                     int spreadDir = 0;
@@ -126,11 +132,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 1;
                         if (IsInBounds(x + 1, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y + 1]);
+                            nodesToCheck.Add(grid[x + 1, y + 1]);
                         }
                         if (IsInBounds(x - 1, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y + 1]);
+                            nodesToCheck.Add(grid[x - 1, y + 1]);
                         }
                     }
                     if (dir == 1)
@@ -138,11 +144,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 2;
                         if (IsInBounds(x, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x, y + 1]);
+                            nodesToCheck.Add(grid[x, y + 1]);
                         }
                         if (IsInBounds(x + 1, y, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y]);
+                            nodesToCheck.Add(grid[x + 1, y]);
                         }
                     }
                     if (dir == 2)
@@ -150,11 +156,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 3;
                         if (IsInBounds(x + 1, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y + 1]);
+                            nodesToCheck.Add(grid[x + 1, y + 1]);
                         }
                         if (IsInBounds(x + 1, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y - 1]);
+                            nodesToCheck.Add(grid[x + 1, y - 1]);
                         }
                     }
                     if (dir == 3)
@@ -162,11 +168,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 4;
                         if (IsInBounds(x, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x, y - 1]);
+                            nodesToCheck.Add(grid[x, y - 1]);
                         }
                         if (IsInBounds(x + 1, y, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y]);
+                            nodesToCheck.Add(grid[x + 1, y]);
                         }
                     }
                     if (dir == 4)
@@ -174,11 +180,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 5;
                         if (IsInBounds(x - 1, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y - 1]);
+                            nodesToCheck.Add(grid[x - 1, y - 1]);
                         }
                         if (IsInBounds(x + 1, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x + 1, y - 1]);
+                            nodesToCheck.Add(grid[x + 1, y - 1]);
                         }
                     }
                     if (dir == 5)
@@ -186,11 +192,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 6;
                         if (IsInBounds(x, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x, y - 1]);
+                            nodesToCheck.Add(grid[x, y - 1]);
                         }
                         if (IsInBounds(x - 1, y, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y]);
+                            nodesToCheck.Add(grid[x - 1, y]);
                         }
                     }
                     if (dir == 6)
@@ -198,11 +204,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 7;
                         if (IsInBounds(x - 1, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y + 1]);
+                            nodesToCheck.Add(grid[x - 1, y + 1]);
                         }
                         if (IsInBounds(x - 1, y - 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y - 1]);
+                            nodesToCheck.Add(grid[x - 1, y - 1]);
                         }
                     }
                     if (dir == 7)
@@ -210,11 +216,11 @@ public class MapConverter : MonoBehaviour {
                         spreadDir = 0;
                         if (IsInBounds(x - 1, y, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x - 1, y]);
+                            nodesToCheck.Add(grid[x - 1, y]);
                         }
                         if (IsInBounds(x, y + 1, maxX, maxY))
                         {
-                            nodesToCheck.Add(data.grid[x, y + 1]);
+                            nodesToCheck.Add(grid[x, y + 1]);
                         }
                     }
                     #endregion
@@ -243,10 +249,10 @@ public class MapConverter : MonoBehaviour {
                 }
             }
 
-            if (executedTurns == 500) //3600
+            if (executedTurns == reqExecutedTurns)
             {
                 print(saveData.grids.Count + 1);
-                saveData.grids.Add(data.grid);
+                saveData.grids.Add(grid);
                 executedTurns = 0;
                 if (debugVisually)
                     DebugVisuals();
@@ -254,6 +260,171 @@ public class MapConverter : MonoBehaviour {
 
             yield return null;
         }
+    }
+
+    public int reqExecutedTurns = 3600;
+
+    private struct OpenNode
+    {
+        public Node node;
+        public int dis;
+
+        public OpenNode(Node node, int dis)
+        {
+            this.node = node;
+            this.dis = dis;
+        }
+    }
+
+    public List<Node> GetNodesInArea(int dis, Node center, Node[,] grid)
+    {
+        List<Node> ret = new List<Node>(); //closed
+        List<Node> closed = new List<Node>();
+        List<OpenNode> open = new List<OpenNode>() {new OpenNode(center, 0) };
+        OpenNode node;
+        Node testable;
+        int x = grid.GetLength(0), y = grid.GetLength(1);
+
+        while(open.Count > 0)
+        {
+            node = open[0];
+            open.RemoveAt(0);
+            closed.Add(node.node);
+            //check if path is in dis else continue
+
+            if (node.dis > dis)
+                continue;
+            if (node.node.dir < 0)
+                continue;
+            ret.Add(node.node);
+
+            //check adjecent
+            #region Check Neighbours
+
+            //top
+            if (IsInBounds(node.node.x, node.node.y + 1, x, y))
+            {
+                testable = grid[node.node.x, node.node.y + 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(0, node.node.dir) + 1)); //also calculate spread map
+            }
+            
+            //top right
+            if (IsInBounds(node.node.x + 1, node.node.y + 1, x, y))
+            {
+                testable = grid[node.node.x + 1, node.node.y + 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(1, node.node.dir))); //also calculate spread map
+            }
+            
+            //right
+            if (IsInBounds(node.node.x + 1, node.node.y, x, y))
+            {
+                testable = grid[node.node.x + 1, node.node.y];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(2, node.node.dir))); //also calculate spread map
+            }
+
+            //down right
+            if (IsInBounds(node.node.x + 1, node.node.y - 1, x, y))
+            {
+                testable = grid[node.node.x + 1, node.node.y - 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(3, node.node.dir))); //also calculate spread map
+            }
+
+            //down
+            if (IsInBounds(node.node.x, node.node.y - 1, x, y))
+            {
+                testable = grid[node.node.x, node.node.y - 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(4, node.node.dir))); //also calculate spread map
+            }
+
+            //down left
+            if (IsInBounds(node.node.x - 1, node.node.y - 1, x, y))
+            {
+                testable = grid[node.node.x - 1, node.node.y - 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(5, node.node.dir))); //also calculate spread map
+            }
+
+            //left
+            if (IsInBounds(node.node.x - 1, node.node.y, x, y))
+            {
+                testable = grid[node.node.x - 1, node.node.y];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(6, node.node.dir))); //also calculate spread map
+            }
+
+            //top left
+            if (IsInBounds(node.node.x - 1, node.node.y + 1, x, y))
+            {
+                testable = grid[node.node.x - 1, node.node.y + 1];
+                if (ret.Contains(testable))
+                    continue;
+                if (closed.Contains(testable))
+                    continue;
+                foreach (OpenNode oN in open)
+                    if (oN.node == testable)
+                        continue;
+                open.Add(new OpenNode(testable,
+                    node.dis + GetDirDifficulty(7, node.node.dir))); //also calculate spread map
+            }
+            
+            #endregion
+        }
+
+        return ret;
     }
 
     [SerializeField]
@@ -268,7 +439,7 @@ public class MapConverter : MonoBehaviour {
         for (int w = 0; w < width; w++)
             for (int h = 0; h < height; h++)
             {
-                c = Color.white;
+                c = Color.black;
                 if (saveData.grids[saveData.grids.Count - 1][w, h].dir < 0)
                 {
                     c.a = 0;
