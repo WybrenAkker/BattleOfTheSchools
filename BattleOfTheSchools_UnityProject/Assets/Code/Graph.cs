@@ -273,7 +273,7 @@ public class Graph : MonoBehaviour {
     {
         Camera c = Camera.main;
         Vector3 newPos = g.transform.position;
-        newPos.z = 100;
+        newPos.z = 1;
         newPos = c.ScreenToWorldPoint(newPos);
         return newPos;
     }
