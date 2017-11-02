@@ -250,14 +250,6 @@ public class MapConverter : MonoBehaviour {
                 executedTurns = 0;
                 if (debugVisually)
                     DebugVisuals();
-
-                //temp
-                int x = 0, y = 0;
-                while(data.grid[x,y].dir < 0)
-                {
-                    x = Random.Range(0, width);
-                    y = Random.Range(0, height);
-                }
             }
 
             yield return null;
