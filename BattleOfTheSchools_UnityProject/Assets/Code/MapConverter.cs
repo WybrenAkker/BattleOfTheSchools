@@ -8,6 +8,8 @@ using System.Linq;
 
 public class MapConverter : MonoBehaviour {
 
+    public static MapConverter self;
+
     [SerializeField]
     private Texture2D flowTex;
     [SerializeField]
@@ -19,9 +21,11 @@ public class MapConverter : MonoBehaviour {
 
     private void Awake()
     {
+        self = this;
         Vector3 vec = mapPlane.GetComponent<Renderer>().bounds.size;
         planeX = vec.x;
-        planeY = vec.z;
+        planeY = vec.y;
+
         inputNodes = GameObject.FindGameObjectsWithTag("Node");
         Simulate();
     }
@@ -82,10 +86,11 @@ public class MapConverter : MonoBehaviour {
         Vector3 pos;
         for (int i = 0; i < inputNodes.Length; i++)
         {
-            ret.inputNodes[i] = new InputNodePos();
+            ret.inputNodes[i] = new InputNodePos(inputNodes[0].GetComponent<InputNode>());
             pos = inputNodes[i].transform.position;
-            ret.inputNodes[i].inputPosX = ConvPercentage(width, planeX, pos.x + planeX / 2);
-            ret.inputNodes[i].inputPosY = ConvPercentage(height, planeY, pos.z + planeY / 2);
+
+            ret.inputNodes[i].inputPosX = ConvPercentage(planeX, width, pos.x + planeX / 2);
+            ret.inputNodes[i].inputPosY = ConvPercentage(planeY, height, pos.y + planeY / 2);
         }
 
         return ret;
@@ -97,7 +102,30 @@ public class MapConverter : MonoBehaviour {
             StopCoroutine(calculateFlow);
         MapData temp = new MapData();
         temp.grid = startPoint;
+
+        temp.inputNodes = new InputNodePos[inputNodes.Length];
+
+        //calc node positions in grid
+        Vector3 pos;
+        for (int i = 0; i < inputNodes.Length; i++)
+        {
+            temp.inputNodes[i] = new InputNodePos(inputNodes[0].GetComponent<InputNode>());
+            pos = inputNodes[i].transform.position;
+
+            temp.inputNodes[i].inputPosX = ConvPercentage(planeX, width, pos.x + planeX / 2);
+            temp.inputNodes[i].inputPosY = ConvPercentage(planeY, height, pos.y + planeY / 2);
+        }
+
         calculateFlow = StartCoroutine(CalculateFlow(temp, timeDif));
+    }
+
+    private Vector2 ConvertMouseToGame()
+    {
+        Vector2 mouse = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+        Vector2 ret = new Vector2();
+        ret.x = ConvPercentage(planeX, width, mouse.x + planeX / 2);
+        ret.y = ConvPercentage(planeY, height, mouse.y + planeY / 2);
+        return ret;
     }
 
     [SerializeField]
@@ -136,6 +164,12 @@ public class MapConverter : MonoBehaviour {
             Node other;
             foreach (Node corruptNode in corrupted)
             {
+                if (Input.GetMouseButtonDown(0))
+                {
+                    Vector2 v = ConvertMouseToGame();
+                    DropNastyStuff(grid[(int)v.x, (int)v.y], grid);
+                }
+
                 loop++;
                 if(loop > loopsPerFrame)
                 {
@@ -290,6 +324,10 @@ public class MapConverter : MonoBehaviour {
 
             if (timeUntilSnapShot <= 0)
             {
+                //drop da bomb
+                if(saveData.grids.Count == cheatDropNastyStuffAtFirstCheckerMoment)
+                DropNastyStuff(grid[data.inputNodes[0].inputPosX, data.inputNodes[0].inputPosY], grid);
+
                 Node[,] newGrid = new Node[width, height];
                 for (int w = 0; w < width; w++)
                     for (int h = 0; h < height; h++)
@@ -298,8 +336,40 @@ public class MapConverter : MonoBehaviour {
                 if(debugVisually)
                     DebugVisuals();
                 timeUntilSnapShot = reqExecutedTurns;
+
+                //check for all checkpoints
+                List<Node> ret;
+                float total;
+                foreach(InputNodePos iNP in data.inputNodes)
+                {
+                    ret = GetNodesInArea(iNP.node.checkRadius, grid[iNP.inputPosX, iNP.inputPosY], grid);
+
+                    for (int i = 0; i < defaultNode.Count; i++)
+                    {
+                        total = 0;
+                        foreach (Node node in ret)
+                            total += node.values[i].current;
+
+                        if(total != 0)
+                            total /= ret.Count;
+                        if (total > defaultNode[i].threshold)
+                            iNP.node.Alarm(defaultNode[i]);
+                        else
+                            iNP.node.UnAlarm();
+                    }
+                }
             }
         }
+    }
+
+    public int cheatDropNastyStuffAtFirstCheckerMoment = 2;
+
+    public void DropNastyStuff(Node cur, Node[,] grid)
+    {
+        List<Node> infected = GetNodesInArea(30, cur, grid);
+        foreach (Node node in infected)
+            node.values[0].current += 120;
+        print("Dropped da bomb");
     }
 
     public int reqExecutedTurns = 3600;
@@ -337,7 +407,7 @@ public class MapConverter : MonoBehaviour {
             if (node.node.dir < 0)
                 continue;
             ret.Add(node.node);
-
+            
             //check adjecent
             #region Check Neighbours
 
@@ -528,6 +598,11 @@ public class MapConverter : MonoBehaviour {
     {
         public InputNode node;
         public int inputPosX, inputPosY;
+
+        public InputNodePos(InputNode node)
+        {
+            this.node = node;
+        }
     }
 
 #region Bake

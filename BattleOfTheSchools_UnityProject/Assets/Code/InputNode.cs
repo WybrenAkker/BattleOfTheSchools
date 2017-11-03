@@ -4,9 +4,19 @@ using UnityEngine;
 using System;
 
 public class InputNode : MonoBehaviour {
-
+    [HideInInspector]
     public List<NodeValue> values = new List<NodeValue>();
     public int checkRadius;
+
+    public void Alarm(NodeValue nV)
+    {
+        transform.GetComponent<SpriteRenderer>().color = Color.red;
+    }
+
+    public void UnAlarm()
+    {
+        transform.GetComponent<SpriteRenderer>().color = Color.white;
+    }
 }
 
 [Serializable]
