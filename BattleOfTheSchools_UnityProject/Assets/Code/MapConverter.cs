@@ -174,7 +174,13 @@ public class MapConverter : MonoBehaviour {
                             corrupted.Add(node);
                             break;
                         }
-            
+
+            if (Input.GetMouseButtonDown(0))
+            {
+                Vector2 v = ConvertMouseToGame();
+                DropNastyStuff(grid[(int)v.x, (int)v.y], grid);
+            }
+
             Node other;
             foreach (Node corruptNode in corrupted)
             {
@@ -338,10 +344,12 @@ public class MapConverter : MonoBehaviour {
 
             if (timeUntilSnapShot <= 0)
             {
+                yield return null;
+                /*
                 //drop da bomb
                 if(saveData.grids.Count == cheatDropNastyStuffAtFirstCheckerMoment)
                 DropNastyStuff(grid[data.inputNodes[0].inputPosX, data.inputNodes[0].inputPosY], grid);
-
+                */
                 Node[,] newGrid = new Node[width, height];
                 for (int w = 0; w < width; w++)
                     for (int h = 0; h < height; h++)
@@ -360,6 +368,7 @@ public class MapConverter : MonoBehaviour {
 
                 foreach(InputNodePos iNP in data.inputNodes) //scanners
                 {
+                    yield return null;
                     ret = GetNodesInArea(iNP.node.checkRadius, grid[iNP.inputPosX, iNP.inputPosY], grid); //all affected nodes
 
                     for (int i = 0; i < defaultNode.Count; i++) //types of filth
@@ -382,11 +391,15 @@ public class MapConverter : MonoBehaviour {
 
     public int cheatDropNastyStuffAtFirstCheckerMoment = 2;
 
+    private bool dropped;
     public void DropNastyStuff(Node cur, Node[,] grid)
     {
+        if (dropped)
+            return;
+        dropped = true;
         List<Node> infected = GetNodesInArea(30, cur, grid);
         foreach (Node node in infected)
-            node.values[0].current += 1200;
+            node.values[0].current += 2;
         print("Dropped da bomb");
     }
 
