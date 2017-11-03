@@ -11,12 +11,12 @@ public class Timeline : MonoBehaviour
     MapConverter mc;
     int imaginarySecondsBetweenHours;
     public GameObject graph;
+    public GameObject mapConverter;
 
     public void Start()
     {
-        //gameManager = GameObject.Find("GameManager");
-        //mc = gameManager.GetComponent<MapConverter>();
-        //imaginarySecondsBetweenHours = mc.reqExecutedTurns;
+        mc = mapConverter.GetComponent<MapConverter>();
+        imaginarySecondsBetweenHours = mc.reqExecutedTurns;
     }
 
     public void OnValueChanged()
@@ -40,7 +40,7 @@ public class Timeline : MonoBehaviour
 
         int simTime = Mathf.RoundToInt(imaginarySecondsBetweenHours * timeDif);
 
-        //mc.UpdateSim(timeSnippet, simTime);
+        mc.UpdateSim(timeSnippet, simTime);
         graph.GetComponent<Graph>().TimeLine(slider.value);
     }
 }

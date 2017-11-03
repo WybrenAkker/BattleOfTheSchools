@@ -26,7 +26,7 @@ public class NodeValue
 
     public void Ran()
     {
-        current = UnityEngine.Random.Range(acceptable, maxValue);
+        current = UnityEngine.Random.Range(acceptable, threshold);
     }
 
     public NodeValue(NodeValue other)

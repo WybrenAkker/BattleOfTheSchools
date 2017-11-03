@@ -59,6 +59,7 @@ public class Graph : MonoBehaviour {
     public GameObject pointImage;
     public Slider timeLineRepresentation;
     public GameObject outsideHolder;
+    public GameObject mapConverter;
 
     private LineRenderer line1;
     private LineRenderer line2;
@@ -86,14 +87,31 @@ public class Graph : MonoBehaviour {
          //   graphList[vervuiling, uur] = procent vervuiling;
         }
         */
-        
+        //LoadData();
         CreateLines();
         ColorButtons();
     }
 
     void LoadData()
     {
+        for(int p = 0; p < 5; p++)
+        {
+            for (int y = 0; y < 24; y++)
+            {
+                int length = mapConverter.GetComponent<MapConverter>().saveData.grids[y].inputNodes.Length;
 
+                float total = 0;
+
+                for(int j = 0; j < length; j++)
+                {
+                    total += mapConverter.GetComponent<MapConverter>().saveData.grids[y].inputNodes[j].node.values[p].current;
+                }
+
+                total = total / length;
+
+                graphList[p, y] = Mathf.RoundToInt(total);
+            }
+        }
     }
 
     void ColorButtons()

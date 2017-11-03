@@ -19,6 +19,8 @@ public class MapConverter : MonoBehaviour {
     [SerializeField]
     private int simulateFramesCount = 86400;
 
+    public bool SimulateRealTime = false;
+
     private void Awake()
     {
         self = this;
@@ -27,7 +29,8 @@ public class MapConverter : MonoBehaviour {
         planeY = vec.y;
 
         inputNodes = GameObject.FindGameObjectsWithTag("Node");
-        Simulate();
+        if(SimulateRealTime)
+            Simulate();
     }
 
     [CreateAssetMenu(fileName = "SimFrame", menuName = "Simulation/List", order = 1)]
@@ -37,10 +40,20 @@ public class MapConverter : MonoBehaviour {
     }
 
     [SerializeField]
-    private SimFrame saveData;
+    public SimFrame saveData;
 
     [SerializeField]
     private List<NodeValue> defaultNode;
+
+    public void UpdateSim(int timeSnippet, int timeToSimulate)
+    {
+        if (calculateFlow != null)
+            StopCoroutine(calculateFlow);
+
+        Node[,] preset = saveData.grids[timeSnippet].grid;
+
+        Resume(preset, timeToSimulate);
+    }
 
     private void Simulate()
     {
@@ -86,7 +99,7 @@ public class MapConverter : MonoBehaviour {
         Vector3 pos;
         for (int i = 0; i < inputNodes.Length; i++)
         {
-            ret.inputNodes[i] = new InputNodePos(inputNodes[0].GetComponent<InputNode>());
+            ret.inputNodes[i] = new InputNodePos(inputNodes[i].GetComponent<InputNode>());
             pos = inputNodes[i].transform.position;
 
             ret.inputNodes[i].inputPosX = ConvPercentage(planeX, width, pos.x + planeX / 2);
@@ -107,9 +120,10 @@ public class MapConverter : MonoBehaviour {
 
         //calc node positions in grid
         Vector3 pos;
+
         for (int i = 0; i < inputNodes.Length; i++)
         {
-            temp.inputNodes[i] = new InputNodePos(inputNodes[0].GetComponent<InputNode>());
+            temp.inputNodes[i] = new InputNodePos(inputNodes[i].GetComponent<InputNode>());
             pos = inputNodes[i].transform.position;
 
             temp.inputNodes[i].inputPosX = ConvPercentage(planeX, width, pos.x + planeX / 2);
@@ -140,7 +154,7 @@ public class MapConverter : MonoBehaviour {
             for (int y = 0; y < grid.GetLength(1); y++)
                 grid[x, y] = new Node(data.grid[x,y]);
 
-        int timeUntilSnapShot = reqExecutedTurns;
+        int timeUntilSnapShot = 1;
         int timeLeft = timeDif;
         List<Node> corrupted = new List<Node>();
         int loop = 0;
@@ -343,19 +357,20 @@ public class MapConverter : MonoBehaviour {
                 //check for all checkpoints
                 List<Node> ret;
                 float total;
-                foreach(InputNodePos iNP in data.inputNodes)
-                {
-                    ret = GetNodesInArea(iNP.node.checkRadius, grid[iNP.inputPosX, iNP.inputPosY], grid);
 
-                    for (int i = 0; i < defaultNode.Count; i++)
+                foreach(InputNodePos iNP in data.inputNodes) //scanners
+                {
+                    ret = GetNodesInArea(iNP.node.checkRadius, grid[iNP.inputPosX, iNP.inputPosY], grid); //all affected nodes
+
+                    for (int i = 0; i < defaultNode.Count; i++) //types of filth
                     {
                         total = 0;
                         foreach (Node node in ret)
-                            total += node.values[i].current;
+                            total += node.values[i].current; //add to total to be divided by count
 
                         if(total != 0)
                             total /= ret.Count;
-                        if (total > defaultNode[i].threshold)
+                        if (total > defaultNode[i].threshold) //check threshold
                             iNP.node.Alarm(defaultNode[i]);
                         else
                             iNP.node.UnAlarm();
@@ -371,7 +386,7 @@ public class MapConverter : MonoBehaviour {
     {
         List<Node> infected = GetNodesInArea(30, cur, grid);
         foreach (Node node in infected)
-            node.values[0].current += 120;
+            node.values[0].current += 1200;
         print("Dropped da bomb");
     }
 
