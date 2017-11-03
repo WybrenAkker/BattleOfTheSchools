@@ -73,6 +73,8 @@ public class Graph : MonoBehaviour {
 
     private void Start()
     {
+        /*
+         * //RANDOM INPUT GENERATING
         for(int p = 0; p < 5; p++)
         {
             for (int y = 0; y < 24; y++)
@@ -80,10 +82,18 @@ public class Graph : MonoBehaviour {
                 int randomInt = UnityEngine.Random.Range(0, 101);
                 graphList[p, y] = randomInt;
             }
+        
          //   graphList[vervuiling, uur] = procent vervuiling;
         }
+        */
+        
         CreateLines();
         ColorButtons();
+    }
+
+    void LoadData()
+    {
+
     }
 
     void ColorButtons()
