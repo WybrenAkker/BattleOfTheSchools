@@ -33,7 +33,7 @@ public class MapConverter : MonoBehaviour {
     [CreateAssetMenu(fileName = "SimFrame", menuName = "Simulation/List", order = 1)]
     public class SimFrame : ScriptableObject
     {
-        public List<Node[,]> grids = new List<Node[,]>();
+        public List<MapData> grids = new List<MapData>();
     }
 
     [SerializeField]
@@ -332,7 +332,10 @@ public class MapConverter : MonoBehaviour {
                 for (int w = 0; w < width; w++)
                     for (int h = 0; h < height; h++)
                         newGrid[w, h] = new Node(grid[w,h]);
-                saveData.grids.Add(newGrid);
+                MapData mData = new MapData();
+                mData.grid = newGrid;
+                mData.inputNodes = data.inputNodes;
+                saveData.grids.Add(mData);
                 if(debugVisually)
                     DebugVisuals();
                 timeUntilSnapShot = reqExecutedTurns;
@@ -551,7 +554,7 @@ public class MapConverter : MonoBehaviour {
             for (int h = 0; h < height; h++)
             {
                 c = Color.black;
-                if (saveData.grids[saveData.grids.Count - 1][w, h].dir < 0)
+                if (saveData.grids[saveData.grids.Count - 1].grid[w, h].dir < 0)
                 {
                     c.a = 0;
                     tex.SetPixel(w, h, c);
@@ -559,8 +562,8 @@ public class MapConverter : MonoBehaviour {
                 }
                 
                 //FILTHY
-                c = Color.Lerp(defaultCol, debugCol, saveData.grids[saveData.grids.Count - 1][w, h].values[0].current /
-                    saveData.grids[saveData.grids.Count - 1][w, h].values[0].maxValue);
+                c = Color.Lerp(defaultCol, debugCol, saveData.grids[saveData.grids.Count - 1].grid[w, h].values[0].current /
+                    saveData.grids[saveData.grids.Count - 1].grid[w, h].values[0].maxValue);
                 tex.SetPixel(w, h, c);
             }
         
